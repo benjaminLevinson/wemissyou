@@ -2,9 +2,21 @@ from datetime import date
 from scraper import scraper
 import random
 import requests
-import re
 import twitter
 import os
+
+
+def process_date(date_):
+    day = date_.strftime("%d").strip("0")
+    month = date_.strftime("%B_")
+    return month + day
+
+
+def get_random_date():
+    start_dt = date.today().replace(day=1, month=1).toordinal()
+    end_dt = date.today().replace(day=31, month=12).toordinal()
+    rand_date = date.fromordinal(random.randint(start_dt, end_dt))
+    return rand_date
 
 
 def tweet(text):
@@ -16,27 +28,22 @@ def tweet(text):
 
 
 def main():
-    today = date.today()
-    day = today.strftime("%d").strip("0")
-    month = today.strftime("%B_")
-    url = "https://en.wikipedia.org/wiki/" + month + day
+    day = process_date(date.today())
+    url = "https://en.wikipedia.org/wiki/" + day
 
     html = requests.get(url)
     section = scraper.scrape_section(html.text, "Deaths")
-    rand_person_line = random.choice(section)
-    line_links = rand_person_line.find_all('a')
+    rand_person = random.choice(section)
+    person_link = scraper.scrape_person_line(rand_person)
 
-    person_link = line_links[0]
-    if line_links[0].string.isnumeric() and len(line_links) >= 2:
-        person_link = line_links[1]
-
-    person_url = "https://en.wikipedia.org" + person_link.get("href")
+    person_url = "https://en.wikipedia.org" + person_link
     print(person_url)
 
     html = requests.get(person_url)
-    first_p = scraper.scrape_first_p(html.text)
-    text_without_refs = re.sub(r'\[.*?\]', "", first_p)
-    tweet_text = scraper.truncate_to_tweet(text_without_refs)
+    bio_text = scraper.scrape_bio_text(html.text)
+    processed_text = scraper.process_text(bio_text)
+    tweet_text = scraper.truncate_to_tweet(processed_text)
+
     print(tweet_text)
     print(len(tweet_text))
     tweet(tweet_text)
