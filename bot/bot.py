@@ -33,8 +33,8 @@ def main():
 
     html = requests.get(url)
     section = scraper.scrape_section(html.text, "Deaths")
-    rand_person = random.choice(section)
-    person_link = scraper.scrape_person_line(rand_person)
+    rand_person_line = random.choice(section)
+    person_link = scraper.scrape_bio_link(rand_person_line)
 
     person_url = "https://en.wikipedia.org" + person_link
     print(person_url)
@@ -42,7 +42,10 @@ def main():
     html = requests.get(person_url)
     bio_text = scraper.scrape_bio_text(html.text)
     processed_text = scraper.process_text(bio_text)
-    tweet_text = scraper.truncate_to_tweet(processed_text)
+
+    gravestone_sentence = scraper.scrape_gravestone(rand_person_line)
+    shortened_bio = scraper.truncate_to_length(processed_text, 280-len(gravestone_sentence))
+    tweet_text = gravestone_sentence + shortened_bio
 
     print(tweet_text)
     print(len(tweet_text))

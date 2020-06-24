@@ -32,7 +32,7 @@ class ScrapeBioText(unittest.TestCase):
         for test_case in test_cases:
             html = requests.get(test_case["person_url"])
             bio_text = scraper.scrape_bio_text(html.text)
-            tweet_text = scraper.truncate_to_tweet(bio_text)
+            tweet_text = scraper.truncate_to_length(bio_text, 280)
             self.assertEqual(test_case["expected_tweet"], tweet_text, test_case["name"])
 
 
