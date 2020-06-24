@@ -28,7 +28,7 @@ def tweet(text):
 
 
 def main():
-    day = process_date(date.today())
+    day = process_date(get_random_date())
     url = "https://en.wikipedia.org/wiki/" + day
 
     html = requests.get(url)
@@ -44,8 +44,8 @@ def main():
     processed_text = scraper.process_text(bio_text)
 
     gravestone_sentence = scraper.scrape_gravestone(rand_person_line)
-    shortened_bio = scraper.truncate_to_length(processed_text, 280-len(gravestone_sentence))
-    tweet_text = gravestone_sentence + shortened_bio
+    shortened_bio = scraper.truncate_to_length(processed_text, 280-len(gravestone_sentence)-len('\n\nRIP'))
+    tweet_text = gravestone_sentence + shortened_bio + '\n\nRIP'
 
     print(tweet_text)
     print(len(tweet_text))

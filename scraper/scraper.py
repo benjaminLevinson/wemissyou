@@ -45,15 +45,13 @@ def scrape_gravestone(person_line):
         birth_year = matches.group("birth_year").strip()
         age = str(int(death_year) - int(birth_year))
         gravestone = \
-            "R.I.P.\n" + \
             full_name + ', ' + age + ' (' + epithet + ')' '\n' + \
-            birth_year + '—' + death_year + '\n'
+            birth_year + '—' + death_year + '\n\n'
     else:
         epithet = remaining_sentence.strip()
         gravestone = \
-            "R.I.P.\n" + \
             full_name + ' (' + epithet + ')' '\n' + \
-            "?-" + death_year + '\n'
+            "?-" + death_year + '\n\n'
 
     return gravestone
 
