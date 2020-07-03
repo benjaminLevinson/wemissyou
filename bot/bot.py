@@ -19,12 +19,12 @@ def get_random_date():
     return rand_date
 
 
-def tweet(text):
+def tweet(text, img_url):
     api = twitter.Api(consumer_key=os.getenv("OBIT_CONSUMER_KEY"),
                       consumer_secret=os.getenv("OBIT_CONSUMER_SECRET"),
                       access_token_key=os.getenv("OBIT_ACCESS_TOKEN_KEY"),
                       access_token_secret=os.getenv("OBIT_ACCESS_TOKEN_SECRET"))
-    api.PostUpdate(text)
+    api.PostUpdate(text, media=img_url)
 
 
 def main():
@@ -41,6 +41,7 @@ def main():
 
     html = requests.get(person_url)
     bio_text = scraper.scrape_bio_text(html.text)
+    bio_image = scraper.scrape_bio_image(html.text)
     processed_text = scraper.process_text(bio_text)
 
     gravestone_sentence = scraper.scrape_gravestone(rand_person_line)
@@ -49,7 +50,7 @@ def main():
 
     print(tweet_text)
     print(len(tweet_text))
-    tweet(tweet_text)
+    tweet(tweet_text, bio_image)
 
 
 if __name__ == "__main__":

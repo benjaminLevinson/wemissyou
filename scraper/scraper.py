@@ -56,6 +56,18 @@ def scrape_gravestone(person_line):
     return gravestone
 
 
+def scrape_bio_image(html_doc):
+    soup = BeautifulSoup(html_doc, 'html.parser')
+    infobox = soup.find(class_="infobox")
+    if not infobox:
+        return ""
+    img_tag = infobox.find("img")
+    if not img_tag:
+        return ""
+    img_src = "https:" + img_tag.get("src")
+    return img_src
+
+
 def scrape_bio_text(html_doc):
     soup = BeautifulSoup(html_doc, 'html.parser')
     infobox = soup.find(class_="infobox")
