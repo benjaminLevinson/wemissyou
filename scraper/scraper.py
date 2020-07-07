@@ -1,3 +1,4 @@
+import requests
 from bs4 import BeautifulSoup
 import re
 
@@ -61,11 +62,28 @@ def scrape_bio_image(html_doc):
     infobox = soup.find(class_="infobox")
     if not infobox:
         return ""
+    img_link_tag = infobox.find("a", class_="image")
+    if img_link_tag:
+        return scrape_hq_image("https://en.wikipedia.org" + img_link_tag.get("href"))
+
     img_tag = infobox.find("img")
     if not img_tag:
         return ""
     img_src = "https:" + img_tag.get("src")
     return img_src
+
+
+# Scrape high-quality image from image file page
+def scrape_hq_image(url):
+    html = requests.get(url)
+    soup = BeautifulSoup(html.text, 'html.parser')
+    file_div = soup.find(id="file")
+    if not file_div:
+        return ""
+    image_link_tag = file_div.find("a")
+    if not image_link_tag:
+        return ""
+    return "https:" + image_link_tag.get("href")
 
 
 def scrape_bio_text(html_doc):

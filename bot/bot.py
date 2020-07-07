@@ -19,12 +19,12 @@ def get_random_date():
     return rand_date
 
 
-def tweet(text, img_url):
+def tweet(text, **kwargs):
     api = twitter.Api(consumer_key=os.getenv("OBIT_CONSUMER_KEY"),
                       consumer_secret=os.getenv("OBIT_CONSUMER_SECRET"),
                       access_token_key=os.getenv("OBIT_ACCESS_TOKEN_KEY"),
                       access_token_secret=os.getenv("OBIT_ACCESS_TOKEN_SECRET"))
-    api.PostUpdate(text, media=img_url)
+    return api.PostUpdate(text, **kwargs)
 
 
 def main():
@@ -50,7 +50,9 @@ def main():
 
     print(tweet_text)
     print(len(tweet_text))
-    tweet(tweet_text, bio_image)
+    print(bio_image)
+    status = tweet(tweet_text, media=bio_image)
+    tweet(person_url, in_reply_to_status_id=status.id)
 
 
 if __name__ == "__main__":
