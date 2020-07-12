@@ -31,13 +31,20 @@ def scrape_bio_link(person_line):
 # Example line:
 #    1775 – Karl Ludwig von Pöllnitz, German adventurer and author (b. 1692)
 def scrape_gravestone(person_line):
-    str_person_line = person_line.get_text()
-
     # Separate death year and rest of sentence
-    death_year, remaining_sentence = str_person_line.split(' – ')
+    death_year, remaining_sentence = person_line.split(' – ')
     # Separate full name and rest of sentence
     comma_split = remaining_sentence.split(', ')
-    full_name, remaining_sentence = comma_split[0], ', '.join(comma_split[1:])
+    if remaining_sentence != comma_split[0]:
+        full_name, remaining_sentence = comma_split[0], ', '.join(comma_split[1:])
+    else:
+        epithet_name, remaining_sentence = remaining_sentence.split(' (b. ')
+        birth_year = remaining_sentence.strip(')')
+        age = str(int(death_year) - int(birth_year))
+        gravestone = \
+            epithet_name + ', ' + age + '\n' + \
+            birth_year + '—' + death_year + '\n\n'
+        return gravestone
 
     # Extract birth year and epithet
     matches = re.match(r'(?P<epithet>.*)\(\D*(?P<birth_year>\d*)\)', remaining_sentence)
