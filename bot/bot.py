@@ -1,9 +1,12 @@
 from datetime import date
+from ai import ai
 from scraper import scraper
 import random
 import requests
 import twitter
 import os
+
+MAX_TOKENS = 4097
 
 
 def process_date(date_):
@@ -20,10 +23,12 @@ def get_random_date():
 
 
 def tweet(text, **kwargs):
-    api = twitter.Api(consumer_key=os.getenv("OBIT_CONSUMER_KEY"),
-                      consumer_secret=os.getenv("OBIT_CONSUMER_SECRET"),
-                      access_token_key=os.getenv("OBIT_ACCESS_TOKEN_KEY"),
-                      access_token_secret=os.getenv("OBIT_ACCESS_TOKEN_SECRET"))
+    api = twitter.Api(
+        consumer_key=os.getenv("OBIT_CONSUMER_KEY"),
+        consumer_secret=os.getenv("OBIT_CONSUMER_SECRET"),
+        access_token_key=os.getenv("OBIT_ACCESS_TOKEN_KEY"),
+        access_token_secret=os.getenv("OBIT_ACCESS_TOKEN_SECRET"),
+    )
     return api.PostUpdate(text, **kwargs)
 
 
@@ -41,20 +46,29 @@ def main():
     print(person_url)
 
     html = requests.get(person_url)
-    bio_text = scraper.scrape_bio_text(html.text)
+    article = scraper.whole_article(html.text)
     bio_image = scraper.scrape_bio_image(html.text)
-    processed_text = scraper.process_text(bio_text)
 
     gravestone_sentence = scraper.scrape_gravestone(rand_person_line.get_text())
-    shortened_bio = scraper.truncate_to_length(processed_text, 280-len(gravestone_sentence)-len('\n\nRIP'))
-    tweet_text = gravestone_sentence + shortened_bio + '\n\nRIP'
 
+    length = len(article.split(" "))
+    if length > MAX_TOKENS:
+        print(length)
+        exit(1)
+
+    identity = "You are a Twitter bot"
+    prompt = "Given a person's biography, write a funny tweet without hashtags by a leftist twitter account about their life. Make sure not to include hashtags."
+    result = ai.prompt(identity, prompt, article)
+    modified_result = strip_hashtags(result).strip('" ')
+    tweet_text = gravestone_sentence + modified_result
     print(tweet_text)
-    print(len(tweet_text))
-    print(bio_image)
     status = tweet(tweet_text, media=bio_image)
     tweet(person_url, in_reply_to_status_id=status.id)
 
 
 if __name__ == "__main__":
     main()
+
+
+def strip_hashtags(text: str) -> str:
+    return text.split("#")[0]
