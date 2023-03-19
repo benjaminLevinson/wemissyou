@@ -21,6 +21,7 @@ export OBIT_CONSUMER_KEY=[your consumer key]
 export OBIT_CONSUMER_SECRET=[your consumer secret]
 export OBIT_ACCESS_TOKEN_KEY=[your access token key]
 export OBIT_ACCESS_TOKEN_SECRET=[your access token secret]
+export OPENAI_API_KEY=[your open AI secret]
 ```
 Now, if you run `tweet.sh` your bot should send out its first
 Tweet! To truly automate your bot, setup a cron job to execute

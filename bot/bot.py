@@ -32,6 +32,19 @@ def tweet(text, **kwargs):
     return api.PostUpdate(text, **kwargs)
 
 
+obituary_types = [
+    "interesting part of obituary in a tweet by leftist twitter account",
+    "sarcastic obitaury in a tweet by leftist twitter account",
+    "funny obituary in a tweet by leftist twitter account",
+    "haiku obituary in a tweet by leftist twitter account",
+    "funny limerick obituary in a tweet by leftist twitter account",
+    "rude limerick obituary in a tweet by leftist twitter account",
+    "poem obituary in a tweet by leftist twitter account",
+    "obituary in the style of a tweet by Cormac McCarthy",
+    "obituary in the style of a tweet by Jorge Luis Borges",
+]
+
+
 def main():
     day = process_date(get_random_date())
     url = "https://en.wikipedia.org/wiki/" + day
@@ -49,19 +62,27 @@ def main():
     article = scraper.whole_article(html.text)
     bio_image = scraper.scrape_bio_image(html.text)
 
-    gravestone_sentence = scraper.scrape_gravestone(rand_person_line.get_text())
-
     length = len(article.split(" "))
     if length > MAX_TOKENS:
         print(length)
         exit(1)
 
+    obituary_type = random.choice(obituary_types)
+
     identity = "You are a Twitter bot"
-    prompt = "Given a person's biography, write a funny tweet without hashtags by a leftist twitter account about their life. Make sure not to include hashtags."
+    prompt = (
+        "Process a person's biography in the following ways:"
+        + "First line: [Name] ([short descriptor]). Example: John de Vere (14th Earl of Oxford)"
+        + "Second line: [birth year]-[death year] ([age]). Example: 1231-1255 (age 24)"
+        + "Third line: blank"
+        + f"Fourth line: [{obituary_type}]. Do not include hashtags. Be sure to fit the tweet character limit."
+    )
+    print(obituary_type)
     result = ai.prompt(identity, prompt, article)
-    modified_result = strip_hashtags(result).strip('" ')
-    tweet_text = gravestone_sentence + modified_result
+    print(result)
+    tweet_text = strip_hashtags(result)
     print(tweet_text)
+    print(len(tweet_text))
     status = tweet(tweet_text, media=bio_image)
     tweet(person_url, in_reply_to_status_id=status.id)
 
